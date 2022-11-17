@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 
 
 #loading data:
 dataset = pd.read_csv('./CICDDoS2019.reduced.csv')
-print(dataset)
+#print(dataset)
 
 #binarizing labels:
 
@@ -36,10 +36,11 @@ numpy_dataset=np.nan_to_num(numpy_dataset, nan=0,posinf=0, neginf=0)
 
 
 #scaling
-scaler = StandardScaler().fit(numpy_dataset) 
+scaler = MinMaxScaler()
+scaler.fit(numpy_dataset)
 scaled_numpy_dataset = scaler.transform(numpy_dataset)
 
-train_x, test_x, train_y, test_y = train_test_split(scaled_numpy_dataset, numpy_labels, train_size = 0.8, random_state=77)
+train_x, test_x, train_y, test_y = train_test_split(scaled_numpy_dataset, numpy_labels, train_size = 0.66, random_state=77)
 
 
 #saving data
@@ -54,4 +55,3 @@ np.savetxt("train_y.txt", train_y)
 
 test_y = np.array(test_y)
 np.savetxt("test_y.txt", test_y)
-
