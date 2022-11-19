@@ -1,8 +1,7 @@
-
 import tensorflow as tf
-import numpy as np
 from keras import backend as K
 import tensorflow_addons as tfa
+from import_data import import_data
 
 
 def create_and_compile_model(input_shape):
@@ -19,28 +18,24 @@ def create_and_compile_model(input_shape):
                 metrics=[tfa.metrics.MatthewsCorrelationCoefficient(num_classes=12)] );
     return mlp_model
 
-def train_model(mlp_model, x_train, y_train, epochs):
-    mlp_model.fit(x_train, y_train, epochs=epochs)
+
+def train_model(mlp_model, train_x, train_y, epochs, batch_size=64):
+    mlp_model.fit(train_x, train_y, epochs=epochs, batch_size=batch_size, verbose=1)
     return mlp_model
 
-def show_model_results(compiled_model, x_test, y_test):
-    model_results = compiled_model.evaluate(x_test, y_test)
-    print("===============MODEL RESULTS===============")
-    print('MCC: {:.4f}'.format(model_results[1]))
+
+def show_model_results(compiled_model, test_x, test_y):
+    model_results = compiled_model.evaluate(test_x, test_y, verbose=1)
+    # print("===============MODEL RESULTS===============")
+    # print('MCC: {:.4f}'.format(model_results[1]))
+    return model_results[1]
 
 
-
-def main():
-    train_x = np.loadtxt("train_x.txt")
-    train_y = np.loadtxt("train_y.txt")
-
-    y_test = np.loadtxt("test_y.txt")
-    x_test = np.loadtxt("test_x.txt")
+def evaluate_model(feature_list):
+    train_x, test_x, train_y, test_y = import_data(feature_list)
+    print(f"\nEvaluating model ->  {train_x.shape[1:]} features...")
 
     compiled_model = create_and_compile_model(train_x.shape[1:])
-    trained_model = train_model(compiled_model,  train_x, train_y, epochs=10)
-    show_model_results(trained_model, y_test=y_test, x_test=x_test)
-
-
-if __name__ == "__main__":
-    main()
+    trained_model = train_model(compiled_model,  train_x, train_y, epochs=20)
+    result = show_model_results(trained_model, test_x, test_y)
+    return result, train_x.shape[1:][0]
